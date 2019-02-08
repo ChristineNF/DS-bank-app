@@ -1,5 +1,6 @@
 import unittest
 import app
+from datetime import datetime
 
 
 class TestBank(unittest.TestCase):
@@ -260,3 +261,50 @@ class TestBank(unittest.TestCase):
         self.assertEqual(einstein.balance, 50.0)
         self.assertEqual(ehrenfest.balance, 0.0)
         self.assertEqual(bank.transactions, [])
+
+    def test_transactions_for(self):
+        bank = app.Bank('GLS')
+        anna = bank.open_account(
+            app.Account(number=1,
+                        firstname='Anna',
+                        lastname='Meier',
+                        balance=700.0,
+                        bank=bank)
+        )
+
+        tom = bank.open_account(
+            app.Account(number=2,
+                        firstname='tom',
+                        lastname='Mayer',
+                        balance=200.0,
+                        bank=bank)
+        )
+
+        einstein = bank.open_account(
+            app.Account(number=3,
+                        firstname='Albert',
+                        lastname='Einstein',
+                        balance=500.0,
+                        bank=bank)
+        )
+
+        transaction1 = bank.add_transaction(sender=anna,
+                                            recipient=tom,
+                                            subject='Miete',
+                                            amount=100.0,
+                                            category='Fixkosten',
+                                            booking_date=datetime(2017, 7, 30))
+        transaction2 = bank.add_transaction(sender=tom,
+                                            recipient=einstein,
+                                            subject='Joghurt',
+                                            amount=100.0,
+                                            category='Lebensmittel',
+                                            booking_date=datetime(2018, 6, 20))
+        transaction3 = bank.add_transaction(sender=einstein,
+                                            recipient=anna,
+                                            subject='Bücher',
+                                            amount=100.0,
+                                            booking_date=datetime(2018, 7, 25))
+
+        transactions = bank.transactions_for(anna)
+        self.assertEqual(transactions, [transaction1, transaction3])
