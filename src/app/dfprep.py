@@ -6,8 +6,9 @@ class Dfprep:
         self.name = name
         self.filename = None
         self.raw_data = None
-        self.formatted_data = None
+        self.one_hot_data = None
         self.clean_data = None
+        self.measurable_columns = None
 
     def load_data(self, filename, **kwargs):
         # self.filename = filename
@@ -28,4 +29,11 @@ class Dfprep:
 
     def convert_categories(self, categories):
         categorical = pd.get_dummies(self.raw_data[categories])
-        return pd.concat([self.raw_data, categorical], axis=1, sort=False)
+        self.one_hot_data = pd.concat([self.raw_data, categorical], axis=1, sort=False)
+
+    def _detect_measurable_columns(self):
+        self.measurable_columns = [col for col in self.raw_data.columns if type(col) == int]
+
+    def prepare_for_euklid(self, line):
+        self._detect_measurable_columns()
+        return self.one_hot_data.loc[line, self.measurable_columns].values.astype('int')
